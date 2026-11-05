@@ -1,0 +1,11 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {validateSchema,validateSubmission} from "../schema.js";
+const fields=[{name:"email",label:"Email",type:"email",required:true},{name:"level",label:"Level",type:"select",options:["A","B"],required:true}];
+test("valid submission",()=>assert.equal(validateSubmission(fields,{email:"a@b.com",level:"A"}).valid,true));
+test("required validation",()=>assert.equal(validateSubmission(fields,{email:"",level:"A"}).valid,false));
+test("email validation",()=>assert.equal(validateSubmission(fields,{email:"bad",level:"A"}).errors.email,"Enter a valid email"));
+test("select validation",()=>assert.equal(validateSubmission(fields,{email:"a@b.com",level:"C"}).valid,false));
+test("duplicate field rejected",()=>assert.throws(()=>validateSchema([fields[0],fields[0]])));
+test("unsupported field rejected",()=>assert.throws(()=>validateSchema([{name:"a",label:"A",type:"password"}])));
+test("number validation",()=>assert.equal(validateSubmission([{name:"age",label:"Age",type:"number"}],{age:"abc"}).valid,false));
